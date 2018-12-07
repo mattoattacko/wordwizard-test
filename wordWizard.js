@@ -4,6 +4,7 @@ var inquirer = require('inquirer');
 let newWord = require('./allWords.js');
 let messages = require('./messages.js');
 let validation = require('./wordWizardValidation.js');
+
 let correctWord = newWord();
 
 correctWord.generateLetters();
@@ -25,8 +26,7 @@ function evaluateResponse(response) {
   };
 }
 
-// Reset function
-function endGame(outcome) {
+function endGameLog(outcome) {
   if (outcome === 'winner') {
     console.log(chalk.blue.bold("\nPraise the Word Wizard! You have won!"));
     console.log(chalk.yellow("You guessed ") + chalk.cyanBright.bold(correctWord.correctWord.toUpperCase()) + " " + chalk.yellow("with " + (guessesRemaining) + " guesses remain.") + "\n");
@@ -34,6 +34,12 @@ function endGame(outcome) {
     console.log("\n" + chalk.bgRed.white.bold("You have lost! The Word Wizard is displeased..."));
     console.log(chalk.yellow("The correct word was: ") + chalk.yellow(correctWord.correctWord + ".") + "\n");
   };
+}
+
+// Reset function
+function endGame(outcome) {
+
+  endGameLog(outcome);
 
   correctWord = newWord();
   correctWord.generateLetters();
@@ -76,6 +82,7 @@ function evaluateUserInput(guess) {
   };
 }
 
+
 // Main game
 
 function main() {
@@ -84,8 +91,8 @@ function main() {
       name: "guess",
       prefix: '',
       message: "\nWord: " + chalk.cyanBright(correctWord.update()) +
-        "\n\nGuesses remaining: " + chalk.magenta.bold(guessesRemaining) +
-        "\nIncorrect guesses so far: " + chalk.magenta.bold(guessesSoFar.join(' ')) + "\n" +
+        "\n\nIncorrect guesses remaining: " + chalk.magenta.bold(guessesRemaining) +
+        "\nGuesses so far: " + chalk.magenta.bold(guessesSoFar.join(' ')) + "\n" +
         "\nCategory: " + chalk.yellow(correctWord.category) + "\n" +
         "\nHint: " + chalk.red(hint) + "\n" +
         "Guess a letter:"
@@ -94,32 +101,33 @@ function main() {
 
     validation.validateUserInput(data.guess, guessesSoFar);
 
-    // evaluateUserInput(correctWord, data, guessesRemaining, guessesSoFar, hint);
-
     // Only decrement guessesRemaining on an incorrect guess
-      // if (!correctWord.correctWord.includes(data.guess)) {
-      //   guessesRemaining--;
-      // }
-      // guessesSoFar.push(data.guess.toUpperCase());
+    // ---- function-wrap this
+      if (!correctWord.correctWord.includes(data.guess)) {
+        guessesRemaining--;
+      }
+      guessesSoFar.push(data.guess.toUpperCase());
 
-      // for (var i = 0; i < correctWord.letters.length; i++) {
-      //   correctWord.letters[i].check(data.guess);
-      // };
-      // if (correctWord.update().toLowerCase() == correctWord.correctWord.toLowerCase()) {
-      //   endGame('winner');
-      //   return;
-      // };
-      // if (guessesRemaining < 6) {
-      //   hint = correctWord.hint;
-      // };
-      // if (guessesRemaining == 0) {
-      //   endGame('loss');
-      //   return;
-      // };
+      for (var i = 0; i < correctWord.letters.length; i++) {
+        correctWord.letters[i].check(data.guess);
+      };
+      if (correctWord.update().toLowerCase() == correctWord.correctWord.toLowerCase()) {
+        endGame('winner');
+        return;
+      };
+      if (guessesRemaining < 6) {
+        hint = correctWord.hint;
+      };
+      if (guessesRemaining == 0) {
+        endGame('loss');
+        return;
+      };
+    // ----
 
-  if(evaluateUserInput(data.guess) == 'skip') {
-    return;
-  };
+
+  // if(evaluateUserInput(data.guess) == 'skip') {
+  //   return;
+  // };
 
   main();
   });
